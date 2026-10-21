@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_77bd18888a3a3b95afac2343c1377b2e {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+<div style="position:fixed; top:20px; right:20px; z-index:9999; background:white;
+            border:2px solid #333; border-radius:10px; padding:20px; width:280px;
+            box-shadow:0 8px 16px rgba(0,0,0,0.2); font-family:Arial, sans-serif;">
+    <h3 style="margin:0 0 15px 0; text-align:center;">Route Simulation</h3>
+
+    <button id="sim-btn" onclick="runSimulation()" style="width:100%; padding:10px; background:#4CAF50;
+            color:white; border:none; border-radius:5px; font-size:16px; font-weight:bold;
+            cursor:pointer; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        ▶ Play Simulation
+    </button>
+
+    <div style="font-size:16px; margin-bottom:10px;">
+        <span style="display:inline-block; width:15px; height:15px; background:#d62728; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>
+        <span id="txt-amz" style="color:#555; vertical-align:middle;">Amazon: Waiting...</span>
+    </div>
+
+    <div style="font-size:16px; margin-bottom:15px;">
+        <span style="display:inline-block; width:15px; height:15px; background:#1f77b4; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>
+        <span id="txt-ppo" style="color:#555; vertical-align:middle;">PPO Route: Waiting...</span>
+    </div>
+
+    <div id="sim-results" style="display:none; border-top:2px dashed #ccc; padding-top:15px; text-align:center;">
+        <h4 style="margin:0 0 5px 0; color:#2ca02c;">✓ PPO Wins!</h4>
+        <div style="font-weight:bold;">Time Saved: <span style="color:#2ca02c; font-size:20px;">-462.83 min</span></div>
+        <div style="font-weight:bold;">Efficiency: <span style="color:#2ca02c; font-size:20px;">+-350.6%</span></div>
+    </div>
+</div>
+
+<script>
+    // Variables populated from Python
+    const amzCoords = [[33.918699, -118.324843], [33.88548, -118.344553], [33.902808, -118.355223], [33.893616, -118.358108], [33.891376, -118.350248], [33.880117, -118.34451], [33.886437, -118.349922], [33.885482, -118.346988], [33.880118, -118.345516], [33.898753, -118.350277], [33.893218, -118.347508], [33.899175, -118.359466], [33.886435, -118.351447], [33.887755, -118.347636], [33.889823, -118.350267], [33.880997, -118.345922], [33.88872, -118.354747], [33.89475, -118.347508], [33.897657, -118.342168], [33.890429, -118.35765], [33.888053, -118.348893], [33.891031, -118.357412], [33.89464, -118.3495], [33.892017, -118.348886], [33.891864, -118.347506], [33.891909, -118.347504], [33.882708, -118.347913], [33.896441, -118.348117], [33.898281, -118.34532], [33.896442, -118.347049], [33.899104, -118.347502], [33.896119, -118.347509], [33.883577, -118.345425], [33.891021, -118.348287], [33.886447, -118.344627], [33.898628, -118.347502], [33.887332, -118.350699], [33.883573, -118.348497], [33.886447, -118.346463], [33.882706, -118.348742], [33.896419, -118.358597], [33.895904, -118.352386], [33.902807, -118.356194], [33.89175, -118.352878], [33.889039, -118.356567], [33.892359, -118.351342], [33.891815, -118.359939], [33.891819, -118.358798], [33.889056, -118.357626], [33.882705, -118.345688], [33.887335, -118.347583], [33.896951, -118.347508], [33.895546, -118.348899], [33.886447, -118.345164], [33.885482, -118.347391], [33.887334, -118.348574], [33.900913, -118.354825], [33.885479, -118.351579], [33.886444, -118.347182], [33.894634, -118.358626], [33.893044, -118.348888], [33.891836, -118.356316], [33.897089, -118.350795], [33.89831, -118.34263], [33.895272, -118.361306], [33.896436, -118.351636], [33.900663, -118.341104], [33.888137, -118.349803], [33.898282, -118.358618], [33.881852, -118.346463], [33.889483, -118.350269], [33.896445, -118.346621], [33.896009, -118.353818], [33.884516, -118.348448], [33.893257, -118.350275], [33.892701, -118.350274], [33.889047, -118.348889], [33.898282, -118.35735], [33.884519, -118.345516], [33.884518, -118.350241], [33.898409, -118.342011], [33.894141, -118.348946], [33.893614, -118.360029], [33.887099, -118.345938], [33.88667, -118.354632], [33.885477, -118.345684], [33.893615, -118.358662], [33.890216, -118.354829], [33.895214, -118.353819], [33.891479, -118.348887], [33.900118, -118.351059], [33.892805, -118.359439], [33.886448, -118.345662], [33.896426, -118.356424], [33.891019, -118.354501], [33.89961, -118.357634], [33.885485, -118.349483], [33.895743, -118.347517], [33.895144, -118.346123], [33.892877, -118.347505], [33.899716, -118.355998], [33.878491, -118.345084], [33.881853, -118.345202], [33.890569, -118.355814], [33.897183, -118.340493], [33.902809, -118.354656], [33.896439, -118.35128], [33.889674, -118.348347], [33.895478, -118.359465], [33.900117, -118.351522], [33.889671, -118.354012], [33.897441, -118.358593], [33.888134, -118.346031], [33.895377, -118.342202], [33.885965, -118.344139], [33.897142, -118.35944], [33.894205, -118.348315], [33.899282, -118.34889], [33.895342, -118.35764], [33.89868, -118.344971], [33.890236, -118.348885], [33.892029, -118.350263], [33.899317, -118.346126], [33.897704, -118.352389], [33.886046, -118.346124], [33.884521, -118.350678], [33.898998, -118.343209], [33.894141, -118.348946], [33.899123, -118.35581], [33.895069, -118.355828], [33.891739, -118.346113], [33.900108, -118.358955], [33.891028, -118.356633], [33.898281, -118.346632], [33.896188, -118.341342], [33.900374, -118.356788], [33.881003, -118.34409], [33.896854, -118.355825], [33.889667, -118.356237], [33.897163, -118.357625], [33.892354, -118.350603], [33.897417, -118.359435], [33.89722, -118.341017], [33.901534, -118.355834], [33.88788, -118.347636], [33.88896, -118.350271], [33.901125, -118.354827], [33.880553, -118.346102], [33.887823, -118.35027], [33.891691, -118.348887], [33.895582, -118.356823], [33.889082, -118.354826], [33.892955, -118.346119], [33.899258, -118.353789], [33.891527, -118.347504], [33.891009, -118.350679], [33.89603, -118.359464], [33.88548, -118.350171], [33.886441, -118.347825], [33.889666, -118.350852], [33.90104, -118.357645], [33.881846, -118.347641], [33.88513, -118.348887], [33.896694, -118.346024], [33.894141, -118.348946], [33.881851, -118.344162]];
+    const ppoCoords = [[33.918699, -118.324843], [33.89464, -118.3495], [33.891479, -118.348887], [33.891691, -118.348887], [33.891009, -118.350679], [33.891021, -118.348287], [33.889823, -118.350267], [33.889483, -118.350269], [33.89475, -118.347508], [33.888053, -118.348893], [33.889047, -118.348889], [33.887823, -118.35027], [33.889666, -118.350852], [33.88896, -118.350271], [33.891376, -118.350248], [33.893044, -118.348888], [33.890236, -118.348885], [33.894141, -118.348946], [33.894141, -118.348946], [33.894141, -118.348946], [33.892029, -118.350263], [33.892354, -118.350603], [33.892701, -118.350274], [33.896009, -118.353818], [33.893257, -118.350275], [33.894634, -118.358626], [33.895144, -118.346123], [33.896439, -118.35128], [33.891739, -118.346113], [33.892017, -118.348886], [33.896436, -118.351636], [33.895546, -118.348899], [33.891527, -118.347504], [33.895069, -118.355828], [33.891864, -118.347506], [33.892359, -118.351342], [33.895214, -118.353819], [33.891909, -118.347504], [33.891019, -118.354501], [33.887099, -118.345938], [33.887332, -118.350699], [33.889671, -118.354012], [33.887334, -118.348574], [33.892955, -118.346119], [33.892877, -118.347505], [33.896441, -118.348117], [33.889082, -118.354826], [33.890216, -118.354829], [33.89175, -118.352878], [33.895743, -118.347517], [33.893218, -118.347508], [33.886435, -118.351447], [33.889674, -118.348347], [33.895904, -118.352386], [33.896426, -118.356424], [33.896119, -118.347509], [33.891028, -118.356633], [33.896442, -118.347049], [33.890569, -118.355814], [33.886437, -118.349922], [33.885479, -118.351579], [33.896445, -118.346621], [33.88872, -118.354747], [33.896951, -118.347508], [33.886441, -118.347825], [33.891031, -118.357412], [33.896854, -118.355825], [33.889667, -118.356237], [33.896694, -118.346024], [33.895342, -118.35764], [33.88548, -118.350171], [33.887755, -118.347636], [33.888137, -118.349803], [33.885485, -118.349483], [33.88513, -118.348887], [33.887335, -118.347583], [33.88788, -118.347636], [33.895582, -118.356823], [33.898753, -118.350277], [33.890429, -118.35765], [33.886444, -118.347182], [33.898281, -118.346632], [33.895478, -118.359465], [33.893616, -118.358108], [33.898281, -118.34532], [33.891836, -118.356316], [33.895377, -118.342202], [33.896419, -118.358597], [33.885965, -118.344139], [33.886447, -118.345164], [33.898628, -118.347502], [33.886447, -118.346463], [33.894205, -118.348315], [33.886448, -118.345662], [33.886046, -118.346124], [33.897089, -118.350795], [33.885482, -118.347391], [33.899258, -118.353789], [33.886447, -118.344627], [33.88667, -118.354632], [33.892805, -118.359439], [33.897704, -118.352389], [33.893615, -118.358662], [33.88548, -118.344553], [33.893614, -118.360029], [33.885482, -118.346988], [33.884516, -118.348448], [33.89868, -118.344971], [33.891819, -118.358798], [33.889056, -118.357626], [33.895272, -118.361306], [33.888134, -118.346031], [33.897163, -118.357625], [33.884521, -118.350678], [33.899282, -118.34889], [33.884518, -118.350241], [33.889039, -118.356567], [33.899104, -118.347502], [33.885477, -118.345684], [33.900118, -118.351059], [33.891815, -118.359939], [33.900117, -118.351522], [33.899716, -118.355998], [33.89603, -118.359464], [33.899123, -118.35581], [33.883573, -118.348497], [33.901125, -118.354827], [33.900913, -118.354825], [33.901534, -118.355834], [33.898282, -118.35735], [33.884519, -118.345516], [33.89831, -118.34263], [33.897142, -118.35944], [33.881851, -118.344162], [33.882706, -118.348742], [33.899317, -118.346126], [33.898282, -118.358618], [33.883577, -118.345425], [33.882705, -118.345688], [33.897417, -118.359435], [33.900374, -118.356788], [33.898409, -118.342011], [33.882708, -118.347913], [33.881003, -118.34409], [33.89961, -118.357634], [33.902809, -118.354656], [33.881853, -118.345202], [33.881852, -118.346463], [33.881846, -118.347641], [33.90104, -118.357645], [33.902808, -118.355223], [33.880117, -118.34451], [33.900108, -118.358955], [33.880118, -118.345516], [33.880997, -118.345922], [33.880553, -118.346102], [33.897441, -118.358593], [33.899175, -118.359466], [33.902807, -118.356194], [33.878491, -118.345084], [33.897183, -118.340493], [33.89722, -118.341017], [33.898998, -118.343209], [33.897657, -118.342168], [33.900663, -118.341104], [33.896188, -118.341342]];
+    const amzTime = 131.9966667552789;
+    const ppoTime = 594.8266646623612;
+
+    // We declare the layers globally but don't attach them until you click "Play"
+    let amzLayer = null;
+    let ppoLayer = null;
+
+    function animateRoute(coords, timeTarget, layer, textElement, prefix) {
+        return new Promise(resolve => {
+            let i = 0;
+            const frames = 150;
+            const pointsPerFrame = Math.max(1, Math.ceil(coords.length / frames));
+
+            textElement.style.fontWeight = 'bold';
+            textElement.style.color = layer.options.color;
+
+            function step() {
+                let endIdx = Math.min(i + pointsPerFrame, coords.length);
+                for(let j = i; j < endIdx; j++) {
+                    layer.addLatLng(coords[j]);
+                }
+                i = endIdx;
+
+                let currentMin = (i / coords.length) * timeTarget;
+                textElement.innerHTML = prefix + ": " + currentMin.toFixed(1) + " min";
+
+                if (i < coords.length) {
+                    requestAnimationFrame(step);
+                } else {
+                    textElement.innerHTML = prefix + ": " + timeTarget.toFixed(2) + " min";
+                    textElement.style.fontWeight = 'normal';
+                    resolve();
+                }
+            }
+            requestAnimationFrame(step);
+        });
+    }
+
+    async function runSimulation() {
+        // Safely fetch the Map object from the browser's window
+        const mapName = "map_77bd18888a3a3b95afac2343c1377b2e";
+        const myMap = window[mapName];
+
+        if (!myMap) {
+            alert("The map hasn't finished loading yet. Please wait a second and try again!");
+            return;
+        }
+
+        if (amzCoords.length === 0 || ppoCoords.length === 0) {
+            alert("Missing route coordinates! Routing might have failed.");
+            return;
+        }
+
+        const btn = document.getElementById('sim-btn');
+        btn.disabled = true;
+        btn.style.background = '#999';
+        btn.innerHTML = 'Simulation Running...';
+        document.getElementById('sim-results').style.display = 'none';
+
+        // Initialize layers onto the map if this is the first time running
+        if (!amzLayer) amzLayer = L.polyline([], {color: '#d62728', weight: 6, opacity: 0.8}).addTo(myMap);
+        if (!ppoLayer) ppoLayer = L.polyline([], {color: '#1f77b4', weight: 6, opacity: 0.9}).addTo(myMap);
+
+        // Reset lines for replayability
+        amzLayer.setLatLngs([]);
+        ppoLayer.setLatLngs([]);
+        document.getElementById('txt-amz').innerHTML = 'Amazon: 0.0 min';
+        document.getElementById('txt-ppo').innerHTML = 'PPO Route: Waiting...';
+
+        // Step 1: Draw Amazon
+        await animateRoute(amzCoords, amzTime, amzLayer, document.getElementById('txt-amz'), 'Amazon');
+
+        // Pause briefly for dramatic effect
+        await new Promise(r => setTimeout(r, 800));
+
+        // Step 2: Draw PPO
+        await animateRoute(ppoCoords, ppoTime, ppoLayer, document.getElementById('txt-ppo'), 'PPO Route');
+
+        // Step 3: Show results
+        document.getElementById('sim-results').style.display = 'block';
+        btn.innerHTML = '↺ Replay';
+        btn.style.background = '#2196F3';
+        btn.disabled = false;
+    }
+</script>
+    
+            <div class="folium-map" id="map_77bd18888a3a3b95afac2343c1377b2e" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_77bd18888a3a3b95afac2343c1377b2e = L.map(
+                "map_77bd18888a3a3b95afac2343c1377b2e",
+                {
+                    center: [33.892284192771086, -118.35042217469879],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_427428066e38e84eda73a7dd4685b7f8 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_427428066e38e84eda73a7dd4685b7f8.addTo(map_77bd18888a3a3b95afac2343c1377b2e);
+        
+    
+            var marker_3b16a30dd14dab3afd05dfb657eb4a80 = L.marker(
+                [33.918699, -118.324843],
+                {
+}
+            ).addTo(map_77bd18888a3a3b95afac2343c1377b2e);
+        
+    
+            var icon_e80449c179c66e7daac481dfb1d441a6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a54c92335baa0315745a3f7bacb25197 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ecfab563a69231f538ee6ee239a3a56b = $(`<div id="html_ecfab563a69231f538ee6ee239a3a56b" style="width: 100.0%; height: 100.0%;"><b>WAREHOUSE</b></div>`)[0];
+                popup_a54c92335baa0315745a3f7bacb25197.setContent(html_ecfab563a69231f538ee6ee239a3a56b);
+            
+        
+
+        marker_3b16a30dd14dab3afd05dfb657eb4a80.bindPopup(popup_a54c92335baa0315745a3f7bacb25197)
+        ;
+
+        
+    
+    
+                marker_3b16a30dd14dab3afd05dfb657eb4a80.setIcon(icon_e80449c179c66e7daac481dfb1d441a6);
+            
+    
+            map_77bd18888a3a3b95afac2343c1377b2e.fitBounds(
+                [[33.868491, -118.371306], [33.928698999999995, -118.314843]],
+                {}
+            );
+        
+</script>
+</html>
